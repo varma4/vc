@@ -1,4 +1,4 @@
-const socket = io("/");
+const socket = io();  // Connect to the default namespace
 const videoGrid = document.getElementById("video-grid");
 const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
@@ -23,10 +23,8 @@ const user = prompt("Enter your name");
 
 var peer = new Peer({
   path: '/peerjs',
-  host: "/",
-  port: '3030',
-  
-
+  host: window.location.hostname,  // Dynamically set the host based on the current environment
+  port: location.protocol === 'https:' ? 443 : 3030,  // Adjust the port based on the protocol
   debug: 3
 });
 

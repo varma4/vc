@@ -8,12 +8,10 @@ const io = require("socket.io")(server, {
     origin: '*'
   }
 });
-const { ExpressPeerServer } = require("peer");
-const opinions = {
-  debug: true,
-}
+const peerServer = ExpressPeerServer(server, opinions);
+app.use("/peerjs", peerServer);
 
-app.use("/peerjs", ExpressPeerServer(server, opinions));
+
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
