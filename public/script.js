@@ -1,58 +1,87 @@
-const socket = io();  // Connect to the default namespace
+// Connect to the default namespace
+const socket = io();
+// Get the video grid element
 const videoGrid = document.getElementById("video-grid");
+// Create a video element for the local user
 const myVideo = document.createElement("video");
+// Get the element that shows the chat
 const showChat = document.querySelector("#showChat");
+// Get the back button element
 const backBtn = document.querySelector(".header__back");
+// Mute the local user's video
 myVideo.muted = true;
 
+// Event listener for the back button
 backBtn.addEventListener("click", () => {
+  // Show the video grid and hide the chat window
   document.querySelector(".main__left").style.display = "flex";
   document.querySelector(".main__left").style.flex = "1";
   document.querySelector(".main__right").style.display = "none";
   document.querySelector(".header__back").style.display = "none";
 });
 
+// Function to go back to the video view
+function backToVideo() {
+  // Show the video grid and hide the chat window
+  document.querySelector(".main__left").style.display = "flex";
+  document.querySelector(".main__left").style.flex = "1";
+  document.querySelector(".main__right").style.display = "none";
+  document.querySelector(".header__back").style.display = "none";
+}
+
+// Event listener for showing the chat window
 showChat.addEventListener("click", () => {
+  // Show the chat window and hide the video grid
   document.querySelector(".main__right").style.display = "flex";
   document.querySelector(".main__right").style.flex = "1";
   document.querySelector(".main__left").style.display = "none";
   document.querySelector(".header__back").style.display = "block";
 });
 
+// Prompt the user to enter their name
 const user = prompt("Enter your name");
 
+// Create a Peer object
 var peer = new Peer({
   path: '/peerjs',
-  host: window.location.hostname, 
-  port: location.protocol === 'https:' ? 443 : 3030,  
+  host: window.location.hostname,  // Dynamically set the host based on the current environment
+  port: location.protocol === 'https:' ? 443 : 3030,  // Adjust the port based on the protocol
   debug: 3
 });
 
 let myVideoStream;
+
+// Get user's audio and video stream
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
     video: true,
   })
   .then((stream) => {
+    // Save the local user's stream
     myVideoStream = stream;
+    // Add the local user's video to the video grid
     addVideoStream(myVideo, stream);
 
+    // Handle incoming calls from other users
     peer.on("call", (call) => {
       console.log('someone call me');
+      // Answer the call and send the local user's stream
       call.answer(stream);
       const video = document.createElement("video");
+      // Add the other user's video to the video grid
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
       });
     });
 
+    // Notify the server when a new user connects
     socket.on("user-connected", (userId) => {
       connectToNewUser(userId, stream);
     });
   });
-  
 
+// Function to connect to a new user
 const connectToNewUser = (userId, stream) => {
   console.log('I call someone' + userId);
   const call = peer.call(userId, stream);
@@ -62,11 +91,14 @@ const connectToNewUser = (userId, stream) => {
   });
 };
 
+// Event handler when the Peer connection is open
 peer.on("open", (id) => {
   console.log('my id is' + id);
+  // Notify the server that the local user has joined the room
   socket.emit("join-room", ROOM_ID, id, user);
 });
 
+// Function to add a video stream to the video grid
 const addVideoStream = (video, stream) => {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
@@ -75,64 +107,44 @@ const addVideoStream = (video, stream) => {
   });
 };
 
+// Get the chat input, send button, and messages elements
 let text = document.querySelector("#chat_message");
 let send = document.getElementById("send");
 let messages = document.querySelector(".messages");
 
+// Event listener for sending a message
 send.addEventListener("click", (e) => {
   if (text.value.length !== 0) {
+    // Emit a message event to the server
     socket.emit("message", text.value);
+    // Clear the chat input
     text.value = "";
   }
 });
 
+// Event listener for sending a message when the Enter key is pressed
 text.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && text.value.length !== 0) {
+    // Emit a message event to the server
     socket.emit("message", text.value);
+    // Clear the chat input
     text.value = "";
   }
 });
 
-// const inviteButton = document.querySelector("#inviteButton");
-// const muteButton = document.querySelector("#muteButton");
-// const stopVideo = document.querySelector("#stopVideo");
-// muteButton.addEventListener("click", () => {
-//   const enabled = myVideoStream.getAudioTracks()[0].enabled;
-//   if (enabled) {
-//     myVideoStream.getAudioTracks()[0].enabled = false;
-//     html = `<i class="fas fa-microphone-slash"></i>`;
-//     muteButton.classList.toggle("background__red");
-//     muteButton.innerHTML = html;
-//   } else {
-//     myVideoStream.getAudioTracks()[0].enabled = true;
-//     html = `<i class="fas fa-microphone"></i>`;
-//     muteButton.classList.toggle("background__red");
-//     muteButton.innerHTML = html;
-//   }
-// });
+// Get the invite button element
+const inviteButton = document.querySelector("#inviteButton");
 
-// stopVideo.addEventListener("click", () => {
-//   const enabled = myVideoStream.getVideoTracks()[0].enabled;
-//   if (enabled) {
-//     myVideoStream.getVideoTracks()[0].enabled = false;
-//     html = `<i class="fas fa-video-slash"></i>`;
-//     stopVideo.classList.toggle("background__red");
-//     stopVideo.innerHTML = html;
-//   } else {
-//     myVideoStream.getVideoTracks()[0].enabled = true;
-//     html = `<i class="fas fa-video"></i>`;
-//     stopVideo.classList.toggle("background__red");
-//     stopVideo.innerHTML = html;
-//   }
-// });
+// Event listener for inviting others to the room
+inviteButton.addEventListener("click", (e) => {
+  // Prompt the user to copy and share the room link
+  prompt(
+    "Copy this link and send it to people you want to meet with",
+    window.location.href
+  );
+});
 
-// inviteButton.addEventListener("click", (e) => {
-//   prompt(
-//     "Copy this link and send it to people you want to meet with",
-//     window.location.href
-//   );
-// });
-
+// Event listener for receiving and displaying messages from the server
 socket.on("createMessage", (message, userName) => {
   messages.innerHTML =
     messages.innerHTML +
@@ -142,3 +154,18 @@ socket.on("createMessage", (message, userName) => {
         <span>${message}</span>
     </div>`;
 });
+
+
+
+
+// User A's Actions:
+
+// User A joins the room, sets up their own video and audio streams using navigator.mediaDevices.getUserMedia.
+// User A sets up an event listener for incoming calls using peer.on("call", ...). This allows User A to handle calls initiated by other users.
+// User B's Actions:
+
+// User B joins the room and obtains their own video and audio streams.
+// User B initiates a call to User A using peer.call(userId, stream). This call includes User B's stream.
+// User A's "call" event listener is triggered, and User A answers the call using call.answer(stream). At this point, User A's stream is sent as the answer.
+// User B's call event handler receives the stream from User A, and call.on("stream", ...) is triggered on User B's end.
+// Inside the callback of call.on("stream", ...), User B's video stream is added to the video grid on User A's side.

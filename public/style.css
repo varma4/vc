@@ -1,12 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
-:root {
-  --main-darklg: #1d2635;
-  --main-dark: #161d29;
-  --primary-color: #2f80ec;
-  --main-light: #eeeeee;
-  font-family: "Poppins", sans-serif;
-}
 
 * {
   margin: 0;
@@ -189,3 +181,44 @@ video {
     display: flex;
   }
 }
+
+
+@media (max-width: 700px) {
+  /* ... (your existing mobile styles) ... */
+
+  .main {
+    flex-direction: column;
+    overflow-y: auto; /* Add overflow-y: auto to enable vertical scrolling */
+  }
+
+  .main__left {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto; /* Add overflow-y: auto to enable vertical scrolling */
+  }
+
+  .main__right {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto; 
+  }
+
+  #video-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-y: auto; 
+    max-height: 60vh; 
+  }
+
+  
+}
+
+/* Hide the "Back to Video" button on larger screens */
+@media (min-width: 701px) {
+  .back-to-video {
+    display: none;
+  }
+
+} 
