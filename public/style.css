@@ -12,7 +12,6 @@
   height: 8vh;
   position: relative;
   width: 100%;
-  background-color: var(--main-darklg);
 }
 
 .logo > h3 {
@@ -37,7 +36,7 @@
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  background-color: var(--main-dark);
+
 }
 
 video {
@@ -54,7 +53,6 @@ video {
 .options {
   padding: 1rem;
   display: flex;
-  background-color: var(--main-darklg);
 }
 
 .options__left {
@@ -69,7 +67,6 @@ video {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--primary-color);
   height: 50px;
   border-radius: 5px;
   color: var(--main-light);
@@ -86,7 +83,7 @@ video {
   display: flex;
   flex-direction: column;
   flex: 0.3;
-  background-color: #242f41;
+
 }
 
 .main__chat_window {
@@ -182,43 +179,53 @@ video {
   }
 }
 
-
 @media (max-width: 700px) {
-  /* ... (your existing mobile styles) ... */
-
-  .main {
-    flex-direction: column;
-    overflow-y: auto; /* Add overflow-y: auto to enable vertical scrolling */
+  .main__right {
+    display: none;
   }
 
   .main__left {
     width: 100%;
     flex: 1;
-    overflow-y: auto; /* Add overflow-y: auto to enable vertical scrolling */
-  }
-
-  .main__right {
-    display: none;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto; 
   }
 
   #video-grid {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
-    overflow-y: auto; 
-    max-height: 60vh; 
+    justify-content: space-between;
+    height: 80vh;
+    overflow-y: auto;
   }
 
-  
+  video {
+    width: 90%; 
+    margin-bottom: 0.5rem;
+  }
+
+
+  video:nth-child(1) {
+    width: 100%;
+  }
+
+  #yourVideoContainer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 20vh;
+  }
+
+  #showChat {
+    display: flex;
+  }
 }
 
-/* Hide the "Back to Video" button on larger screens */
+
+
+
 @media (min-width: 701px) {
   .back-to-video {
     display: none;
   }
 
-} 
+}
