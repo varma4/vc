@@ -47,80 +47,12 @@ stopVideo.addEventListener("click", () => {
 
 
 
-const screenshare = document.querySelector("#shareScreen");
-let screenStream; // Declare screenStream variable
-
-// Mute the local user's video
-myVideo.muted = true;
-
-screenshare.addEventListener('click', () => {
-  if (!screenStream) {
-    startScreenSharing();
-  } else {
-    stopScreenSharing();
-  }
-});
-
-const startScreenSharing = () => {
-  navigator.mediaDevices.getDisplayMedia({ video: true })
-    .then((screenStream) => {
-      // Save the screen sharing stream
-      replaceStream(screenStream);
-
-      // Notify other participants about the screen sharing
-      for (const connection of Object.values(peer.connections)) {
-        const call = peer.call(connection[0].peer, screenStream);
-        const video = document.createElement("video");
-
-        // Add the other user's video to the video grid
-        call.on("stream", (userVideoStream) => {
-          addVideoStream(video, userVideoStream);
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Error accessing screen:", error);
-    });
-};
-
-
-const stopScreenSharing = () => {
-  screenStream.getTracks().forEach((track) => track.stop());
-  screenStream = null;
-
-
-  // Replace with the camera stream
-  navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-    .then((stream) => {
-      replaceStream(stream);
-    })
-    .catch((error) => {
-      console.error("Error accessing camera:", error);
-    });
-};
-
-
-
-
-const replaceStream = (newStream) => {
-
-  // Replace the tracks in the video element
-  myVideo.srcObject = newStream;
-  myVideoStream = newStream;
-
-
-};
-
 
 socket.on('clear-grid', () => {
   videoGrid.removeChild(videoGrid.firstElementChild);
 });
 
 
-
-
-
-// Event listener for the back button
 backBtn.addEventListener("click", () => {
   // Show the video grid and hide the chat window
   document.querySelector(".main__left").style.display = "flex";
@@ -146,6 +78,7 @@ showChat.addEventListener("click", () => {
   document.querySelector(".main__left").style.display = "none";
   document.querySelector(".header__back").style.display = "block";
 });
+
 
 // Prompt the user to enter their name
 const user = prompt("Enter your name");
