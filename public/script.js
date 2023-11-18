@@ -8,8 +8,69 @@ const myVideo = document.createElement("video");
 const showChat = document.querySelector("#showChat");
 // Get the back button element
 const backBtn = document.querySelector(".header__back");
+const screenshare = document.querySelector("#shareScreen");
+let screenStream; // Declare screenStream variable
+
 // Mute the local user's video
 myVideo.muted = true;
+
+screenshare.addEventListener('click', () => {
+  if (!screenStream) {
+    startScreenSharing();
+  } else {
+    stopScreenSharing();
+  }
+});
+
+// Function to start screen sharing
+const startScreenSharing = () => {
+  // Use the navigator.mediaDevices.getDisplayMedia() API to access the user's screen
+  navigator.mediaDevices.getDisplayMedia()
+    .then((screenStream) => {
+      // Replace the current video stream with the screen sharing stream
+      replaceStream(screenStream);
+
+      // Update the screenStream variable
+      screenStream = screenStream;
+
+      // getting all users
+      for (const connection of Object.values(peer.connections)) {
+        // Call each participant and send the screen sharing stream
+        const call = peer.call(connection[0].peer, screenStream);
+        const video = document.createElement("video");
+
+        call.on("stream", (userVideoStream) => {
+          addVideoStream(video, userVideoStream);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error accessing screen:", error);
+    });
+};
+
+// Function to stop screen sharing
+const stopScreenSharing = () => {
+  // Remove the video element associated with the local user
+  videoGrid.removeChild(myVideo);
+};
+
+// Function to replace the current stream with a new stream
+const replaceStream = (newStream) => {
+  myVideo.srcObject = newStream;
+  myVideoStream = newStream;
+};
+
+
+
+
+socket.on('clear-grid', () => {
+  videoGrid.removeChild(videoGrid.firstElementChild);
+});
+
+
+
+
 
 // Event listener for the back button
 backBtn.addEventListener("click", () => {
@@ -57,6 +118,7 @@ navigator.mediaDevices
     audio: true,
     video: true,
   })
+// navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
   .then((stream) => {
     // Save the local user's stream
     myVideoStream = stream;
@@ -67,6 +129,7 @@ navigator.mediaDevices
     peer.on("call", (call) => {
       console.log('someone call me');
       // Answer the call and send the local user's stream
+      
       call.answer(stream);
       const video = document.createElement("video");
       // Add the other user's video to the video grid
@@ -158,6 +221,41 @@ socket.on("createMessage", (message, userName) => {
 
 
 
+const muteButton = document.querySelector("#muteButton");
+const stopVideo = document.querySelector("#stopVideo");
+muteButton.addEventListener("click", () => {
+  const enabled = myVideoStream.getAudioTracks()[0].enabled;
+  if (enabled) {
+    myVideoStream.getAudioTracks()[0].enabled = false;
+    html = `<i class="fas fa-microphone-slash"></i>`;
+    muteButton.classList.toggle("background__red");
+    muteButton.innerHTML = html;
+  } else {
+    myVideoStream.getAudioTracks()[0].enabled = true;
+    html = `<i class="fas fa-microphone"></i>`;
+    muteButton.classList.toggle("background__red");
+    muteButton.innerHTML = html;
+  }
+});
+
+stopVideo.addEventListener("click", () => {
+  const enabled = myVideoStream.getVideoTracks()[0].enabled;
+  if (enabled) {
+    myVideoStream.getVideoTracks()[0].enabled = false;
+    html = `<i class="fas fa-video-slash"></i>`;
+    stopVideo.classList.toggle("background__red");
+    stopVideo.innerHTML = html;
+  } else {
+    myVideoStream.getVideoTracks()[0].enabled = true;
+    html = `<i class="fas fa-video"></i>`;
+    stopVideo.classList.toggle("background__red");
+    stopVideo.innerHTML = html;
+  }
+});
+
+
+
+
 // User A's Actions:
 
 // User A joins the room, sets up their own video and audio streams using navigator.mediaDevices.getUserMedia.
@@ -169,3 +267,7 @@ socket.on("createMessage", (message, userName) => {
 // User A's "call" event listener is triggered, and User A answers the call using call.answer(stream). At this point, User A's stream is sent as the answer.
 // User B's call event handler receives the stream from User A, and call.on("stream", ...) is triggered on User B's end.
 // Inside the callback of call.on("stream", ...), User B's video stream is added to the video grid on User A's side.
+
+
+
+
