@@ -22,19 +22,14 @@ screenshare.addEventListener('click', () => {
   }
 });
 
-// Function to start screen sharing
 const startScreenSharing = () => {
-  
-
-  // Use the navigator.mediaDevices.getDisplayMedia() API to access the user's screen
   navigator.mediaDevices.getDisplayMedia({ video: true })
     .then((screenStream) => {
-      // Replace the current video stream with the screen sharing stream
+      // Save the screen sharing stream
       replaceStream(screenStream);
 
       // Notify other participants about the screen sharing
       for (const connection of Object.values(peer.connections)) {
-        // Call each participant and send the screen sharing stream
         const call = peer.call(connection[0].peer, screenStream);
         const video = document.createElement("video");
 
@@ -45,25 +40,37 @@ const startScreenSharing = () => {
       }
     })
     .catch((error) => {
-      // Handle errors, such as when the user denies screen access
       console.error("Error accessing screen:", error);
     });
 };
 
-// Function to stop screen sharing
+
 const stopScreenSharing = () => {
+  screenStream.getTracks().forEach((track) => track.stop());
+  screenStream = null;
 
 
-  
-    videoGrid.removeChild(newStream)
+  // Replace with the camera stream
+  navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+    .then((stream) => {
+      replaceStream(stream);
+    })
+    .catch((error) => {
+      console.error("Error accessing camera:", error);
+    });
 };
 
-// Function to replace the current stream with a new stream
+
+
+
 const replaceStream = (newStream) => {
+
+  // Replace the tracks in the video element
   myVideo.srcObject = newStream;
   myVideoStream = newStream;
-};
 
+
+};
 
 
 socket.on('clear-grid', () => {
@@ -219,10 +226,6 @@ socket.on("createMessage", (message, userName) => {
         <span>${message}</span>
     </div>`;
 });
-
-
-
-
 
 
 
