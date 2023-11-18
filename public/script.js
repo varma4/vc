@@ -25,7 +25,7 @@ screenshare.addEventListener('click', () => {
 // Function to start screen sharing
 const startScreenSharing = () => {
   // Use the navigator.mediaDevices.getDisplayMedia() API to access the user's screen
-  navigator.mediaDevices.getDisplayMedia()
+  navigator.mediaDevices.getDisplayMedia({ video: true })
     .then((screenStream) => {
       // Replace the current video stream with the screen sharing stream
       replaceStream(screenStream);
