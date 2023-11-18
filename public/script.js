@@ -24,35 +24,38 @@ screenshare.addEventListener('click', () => {
 
 // Function to start screen sharing
 const startScreenSharing = () => {
+  
+
   // Use the navigator.mediaDevices.getDisplayMedia() API to access the user's screen
   navigator.mediaDevices.getDisplayMedia({ video: true })
     .then((screenStream) => {
       // Replace the current video stream with the screen sharing stream
       replaceStream(screenStream);
 
-      // Update the screenStream variable
-      screenStream = screenStream;
-
-      // getting all users
+      // Notify other participants about the screen sharing
       for (const connection of Object.values(peer.connections)) {
         // Call each participant and send the screen sharing stream
         const call = peer.call(connection[0].peer, screenStream);
         const video = document.createElement("video");
 
+        // Add the other user's video to the video grid
         call.on("stream", (userVideoStream) => {
           addVideoStream(video, userVideoStream);
         });
       }
     })
     .catch((error) => {
+      // Handle errors, such as when the user denies screen access
       console.error("Error accessing screen:", error);
     });
 };
 
 // Function to stop screen sharing
 const stopScreenSharing = () => {
-  // Remove the video element associated with the local user
-  videoGrid.removeChild(myVideo);
+
+
+  
+    videoGrid.removeChild(newStream)
 };
 
 // Function to replace the current stream with a new stream
@@ -60,7 +63,6 @@ const replaceStream = (newStream) => {
   myVideo.srcObject = newStream;
   myVideoStream = newStream;
 };
-
 
 
 
@@ -221,37 +223,6 @@ socket.on("createMessage", (message, userName) => {
 
 
 
-const muteButton = document.querySelector("#muteButton");
-const stopVideo = document.querySelector("#stopVideo");
-muteButton.addEventListener("click", () => {
-  const enabled = myVideoStream.getAudioTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getAudioTracks()[0].enabled = false;
-    html = `<i class="fas fa-microphone-slash"></i>`;
-    muteButton.classList.toggle("background__red");
-    muteButton.innerHTML = html;
-  } else {
-    myVideoStream.getAudioTracks()[0].enabled = true;
-    html = `<i class="fas fa-microphone"></i>`;
-    muteButton.classList.toggle("background__red");
-    muteButton.innerHTML = html;
-  }
-});
-
-stopVideo.addEventListener("click", () => {
-  const enabled = myVideoStream.getVideoTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getVideoTracks()[0].enabled = false;
-    html = `<i class="fas fa-video-slash"></i>`;
-    stopVideo.classList.toggle("background__red");
-    stopVideo.innerHTML = html;
-  } else {
-    myVideoStream.getVideoTracks()[0].enabled = true;
-    html = `<i class="fas fa-video"></i>`;
-    stopVideo.classList.toggle("background__red");
-    stopVideo.innerHTML = html;
-  }
-});
 
 
 
