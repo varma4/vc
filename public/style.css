@@ -208,7 +208,7 @@ video {
     justify-content: center;
     flex-wrap: wrap;
     overflow-y: auto; 
-    max-height: 60vh; 
+    max-height: 100vh; 
   }
   .back-to-video{
     position: absolute;
